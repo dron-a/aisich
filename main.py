@@ -239,6 +239,10 @@ async def webhook(
     # import json
     # with open("payload_dump.jsonl", "a") as f:      # TEMPORARY — remove after inspection
     #     f.write(json.dumps(payload) + "\n")
+    d = payload.get("data") or {}
+    logger.info("inbound key=%s has_alt=%s", 
+                {k: v for k, v in (d.get("key") or {}).items() if k != "id"},
+                "remoteJidAlt" in (d.get("key") or {}))
     extracted = _extract(payload)
     if extracted:
         background_tasks.add_task(process_message, *extracted)

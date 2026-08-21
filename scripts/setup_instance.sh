@@ -3,7 +3,7 @@ set -euo pipefail
 # Usage: EVOLUTION_API_KEY=... WEBHOOK_SECRET=... ./scripts/setup_instance.sh devinstance http://host.docker.internal:8000
 INSTANCE="${1:?instance name}"
 BOT_URL="${2:?bot base url}"
-EVO="http://localhost:8080"
+EVO="${EVO:-http://localhost:8080}"
 
 curl -sf -X POST "$EVO/instance/create" \
   -H "apikey: $EVOLUTION_API_KEY" -H "Content-Type: application/json" \
