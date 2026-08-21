@@ -2,3 +2,4 @@
 .venv
 dev_vectors
 __pycache__
+.pytest_cache

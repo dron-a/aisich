@@ -21,7 +21,11 @@ async def init_pool() -> None:
     global _pool
     # Essential-tier Postgres has a low connection cap shared across add-on
     # attachments — keep this pool tiny. One dyno, async I/O: 2 is enough.
-    _pool = await asyncpg.create_pool(settings.database_url, min_size=1, max_size=2)
+    # _pool = await asyncpg.create_pool(settings.database_url, min_size=1, max_size=2)
+    _pool = await asyncpg.create_pool(
+    settings.database_url, min_size=0, max_size=2,   # min_size=0: don't hold idle conns open
+    max_inactive_connection_lifetime=180,             # recycle before Neon's ~300s suspend
+    )
 
 
 async def close_pool() -> None:

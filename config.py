@@ -1,4 +1,4 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -26,8 +26,17 @@ class Settings(BaseSettings):
     #db settings
     pg_password: str
 
-    class Config:
-        env_file = ".env"
+    # --- Behavior gating ---
+    bot_number: str                        # bot's own number, digits only, e.g. "919999999999"
+    bot_lid: str | None = None             # bot's LID number if clients mention via LID (populate after live test)
+    allowed_group_jid: str | None = None   # the ONE group the bot serves; None = deaf in all groups
+    dm_conversation_enabled: bool = False  # False = DMs are commands-only
+    dm_reply_cooldown_s: int = 300         # non-command DM redirect cooldown
+    unreg_cooldown_s: int = 300            # per-sender unregistered-reply cooldown (replaces UNREG_COOLDOWN_S)
+
+    # class Config:
+    #     env_file = ".env"
+    model_config = SettingsConfigDict(env_file=".env")
 
 
 settings = Settings()
