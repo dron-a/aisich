@@ -11,14 +11,12 @@ dependencies = [
     "httpx==0.28.1",
     "litellm==1.97.0",
     "numpy==1.26.4",
-    "openai==2.54.0",
     "pydantic-settings==2.15.0",
     "python-dotenv==1.2.3",
     "pyyaml==6.0.3",
-    "scikit-learn==1.9.0",
     "sentence-transformers==3.0.1",
     "torch==2.13.0",
-    "uvicorn==0.30.6",
+    "uvicorn[standard]==0.30.6",
 ]
 
 [dependency-groups]
@@ -26,3 +24,15 @@ dev = [
     "pytest==8.3.5",
     "pytest-asyncio==0.23.8",
 ]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+asyncio_mode = "strict"        # keep whatever else is already in this section
