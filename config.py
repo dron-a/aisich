@@ -21,10 +21,10 @@ class Settings(BaseSettings):
     rag_top_k: int = 3
 
     # config.py — add:
-    local_vector_dir: str | None = None      # dev only: load index from disk, skip S3
+    # local_vector_dir: str | None = None      # dev only: load index from disk, skip S3
 
     #db settings
-    pg_password: str
+    # pg_password: str
 
     # --- Behavior gating ---
     bot_number: str                        # bot's own number, digits only, e.g. "919999999999"
