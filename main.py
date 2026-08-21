@@ -236,8 +236,8 @@ async def webhook(
     if len(body) > MAX_BODY_BYTES:
         raise HTTPException(status_code=413, detail="payload too large")
     payload = await request.json()
-    import json
-    logger.info("PAYLOAD %s", json.dumps(payload))
+    # import json
+    # logger.info("PAYLOAD %s", json.dumps(payload))
     # with open("payload_dump.jsonl", "a") as f:      # TEMPORARY — remove after inspection
     #     f.write(json.dumps(payload) + "\n")
     # d = payload.get("data") or {}
