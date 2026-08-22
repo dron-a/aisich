@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     local_vector_dir: str | None = None      # dev only: load index from disk, skip S3
 
     #db settings
-    pg_password: str
+    # pg_password: str
 
     # --- Behavior gating ---
     bot_number: str                        # bot's own number, digits only, e.g. "919999999999"
@@ -34,9 +34,16 @@ class Settings(BaseSettings):
     dm_reply_cooldown_s: int = 300         # non-command DM redirect cooldown
     unreg_cooldown_s: int = 300            # per-sender unregistered-reply cooldown (replaces UNREG_COOLDOWN_S)
 
+    # -------- embeddings Vars ----------------
+    embedding_backend: str = "onnx"           # "onnx" | "remote"
+    embedding_provider: str = "jina"          # read only when backend=remote
+    embedding_api_key: str | None = None      # deliberately NOT a provider-standard name
+    s3_manifest_key: str = "manifest.json"
+
     # class Config:
     #     env_file = ".env"
-    model_config = SettingsConfigDict(env_file=".env")
+    # model_config = SettingsConfigDict(env_file=".env")
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
 settings = Settings()
