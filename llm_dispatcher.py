@@ -25,35 +25,12 @@ async def _call_litellm(prompt: str, *, model: str, api_key: str,
 
 
 async def _call_claude(prompt: str, *, timeout_s: float, **_) -> dict:
-    from claude_agent_sdk import ClaudeAgentOptions, ResultMessage, query
-
-    text, usd, tokens = "", None, None
-    async with asyncio.timeout(timeout_s):
-        async for msg in query(prompt=prompt.user_prompt, options=ClaudeAgentOptions(allowed_tools=[])):
-            if isinstance(msg, ResultMessage):
-                text = msg.result or ""
-    return text
+    return
 
 
 async def _call_antigravity(prompt: Any, *, project: str, location: str,
                             model: str, timeout_s: float, **_) -> str:
-    from google.antigravity import Agent, LocalAgentConfig
-
-    config = LocalAgentConfig(
-        vertex=True, project=project, location=location, model=model, system_instructions=prompt.system_prompt
-    )
-    # 1. Initialize the agent connection safely
-    async with Agent(config) as agent:
-        try:
-            # 2. Wrap only the API interaction inside the timeout
-            async with asyncio.timeout(timeout_s):
-                resp = await agent.chat(prompt.user_prompt)
-                text = await resp.text()
-        except TimeoutError:
-            print(f"The Antigravity SDK did not respond within {timeout_s} seconds.")
-            return "Timeout failure."
-
-    return text
+   return
 
 async def _call_gemini(
     prompt: Any,  # Accepts prompt object containing .system_prompt and .user_prompt
@@ -65,43 +42,7 @@ async def _call_gemini(
     **_  # Silently swallows extra configuration kwargs
 ) -> str:
     # Inline import for the official unified google-genai library
-    from google import genai
-    from google.genai import types
-
-    # 1. Initialize the client using the exact same authentication keys
-    client = genai.Client(
-        vertexai=True,        # Directs traffic to Google Cloud Vertex AI infrastructure
-        project=project,      # Google Cloud Project ID string
-        location=location     # target deployment region (e.g., 'us-central1')
-    )
-
-    try:
-        # Use generate_content directly on the model endpoint for single-turn execution
-        response = await client.aio.models.generate_content(
-            model=model,
-            contents=prompt.user_prompt,
-            config=types.GenerateContentConfig(
-                system_instruction=prompt.system_prompt,
-            )
-        )
-        return response.text
-        # # 2. Wrap only the API interaction inside the timeout boundary
-        # async with asyncio.timeout(timeout_s):
-        #     # Create a structured chat session mapping your system instructions
-        #     chat = client.aio.models.generate_content(
-        #         model=model,
-        #         config=types.GenerateContentConfig(
-        #             system_instruction=prompt.system_prompt,
-        #         )
-        #     )
-            
-        #     # Send the user prompt asynchronously down the connection channel
-        #     # response = await chat.send_message_async(prompt.user_prompt)
-        #     return response.text
-
-    except TimeoutError:
-        print(f"The Gemini agent did not respond within {timeout_s} seconds.")
-        return "Timeout failure."
+   return
 
 
 
