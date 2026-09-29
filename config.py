@@ -12,8 +12,9 @@ class Settings(BaseSettings):
     s3_bucket: str
     s3_index_key: str = "index.faiss"
     s3_chunks_key: str = "chunks.json"
-    s3_prefix: str = "vectors"
-    s3_pending_key: str = "engrave/processed"
+    s3_prefix: str = "vectors/"
+    s3_pending_key: str = "review/pending.json"
+    s3_approved_key: str = "review/approved.json"
 
     evolution_api_url: str                # e.g. https://aisich-evolution-app.herokuapp.com
     evolution_api_key: str
@@ -51,7 +52,7 @@ class Settings(BaseSettings):
     agy_model: str | None = None
     agy_project: str | None = None
     agy_location: str | None = None
-    s3_engrave_prefix: str = "engrave"
+    s3_engrave_prefix: str = "engrave/"
 
     #------------- admin settings ----------------------
     allow_freebies: bool = False
