@@ -1,71 +1,79 @@
 services:
-  evolution-api:
-    image: evoapicloud/evolution-api:v2.3.7     # we'll verify the real version in step 1 below
-    ports:
-      - "8080:8080"
-    environment:
-      - SERVER_URL=http://localhost:8080
-      - AUTHENTICATION_API_KEY=${EVOLUTION_API_KEY}
-      - DATABASE_ENABLED=true
-      - DATABASE_PROVIDER=postgresql
-      - DATABASE_CONNECTION_URI=postgresql://evolution_user:evolution_dev_pw@postgres:5432/evolution
-      - DATABASE_SAVE_DATA_INSTANCE=true
-      - DATABASE_SAVE_DATA_NEW_MESSAGE=false
-      - DATABASE_SAVE_MESSAGE_UPDATE=false
-      - DATABASE_SAVE_DATA_CONTACTS=false
-      - DATABASE_SAVE_DATA_CHATS=false
-      - DATABASE_SAVE_DATA_LABELS=false
-      - DATABASE_SAVE_DATA_HISTORIC=false
-      - CACHE_REDIS_ENABLED=true
-      - CACHE_REDIS_URI=redis://redis:6379
-      # - WEBHOOK_GLOBAL_ENABLED=true
-      # - WEBHOOK_GLOBAL_URL=http://host.docker.internal:8000/webhook
-      # - WEBHOOK_EVENTS_MESSAGES_UPSERT=true
-      - LOG_LEVEL=ERROR,WARN
-      - DEL_INSTANCE=false
-    volumes:
-      - evolution_instances:/evolution/instances
-    depends_on:
-      - postgres
-      - redis
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-
   postgres:
-    image: postgres:16.4
-    ports:
-      - "5432:5432"                            # exposed so the aisich (on host) can reach aisichdb
+    image: postgres:16-alpine
+    restart: unless-stopped
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=${PG_PASSWORD}
+      POSTGRES_USER: ${PG_USER:-postgres}
+      POSTGRES_PASSWORD: ${PG_PASSWORD:-secretpassword}
+      POSTGRES_DB: ${PG_DB:-whatsmiau}
     volumes:
       - pg_data:/var/lib/postgresql/data
-      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql   # runs ONCE on first boot
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER:-postgres}"]
       interval: 5s
-      retries: 10
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 256M
 
   redis:
-    image: redis:7.4
-    volumes:
-      - redis_data:/data
-  
+    image: redis:7.4-alpine
+    restart: unless-stopped
+    command: >
+      redis-server 
+      --maxmemory 128mb 
+      --maxmemory-policy allkeys-lru 
+      --save "" 
+      --appendonly no
+    deploy:
+      resources:
+        limits:
+          memory: 160M
+
   whatsmiau:
-    # image: impedr029/whatsmiau:v1.2.0
-    # platform: linux/amd64   # pin a release tag after checking github tags
-    build: ../whatsmiau-src
+    image: ghcr.io/dron-a/aisich-whatsmiau:latest
+    restart: unless-stopped
     ports:
-      - "8085:8080"
+      # Bound to localhost so you can access the QR dashboard securely
+      - "127.0.0.1:8085:8080"
     environment:
       - PORT=8080
-      - API_KEY=miaulocal123
+      - API_KEY=${WHATSMIAU_API_KEY:-dev_key}
       - REDIS_URL=redis://redis:6379
       - DIALECT_DB=postgres
-      - DATABASE_URL=postgresql://evolution_user:evolution_dev_pw@postgres:5432/whatsmiau?sslmode=disable
-    depends_on: [postgres, redis]
+      - DATABASE_URL=postgresql://${PG_USER:-postgres}:${PG_PASSWORD:-secretpassword}@postgres:5432/${PG_DB:-whatsmiau}?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    deploy:
+      resources:
+        limits:
+          memory: 350M
+
+  aisich:
+    # Build locally using the optimized Dockerfile or pull from GHCR
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ghcr.io/dron-a/aisich:latest
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8000:8000"
+    env_file:
+      - ./aisich.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      whatsmiau:
+        condition: service_started
+    deploy:
+      resources:
+        limits:
+          memory: 1500M
 
 volumes:
-  evolution_instances:
   pg_data:
-  redis_data:
