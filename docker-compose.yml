@@ -3,13 +3,13 @@ services:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${PG_USER:-postgres}
-      POSTGRES_PASSWORD: ${PG_PASSWORD:-secretpassword}
+      POSTGRES_USER: ${PG_USER:-evolution_user}
+      POSTGRES_PASSWORD: ${PG_PASSWORD:-evolution_dev_pw}
       POSTGRES_DB: ${PG_DB:-whatsmiau}
     volumes:
       - pg_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${PG_USER:-postgres}"]
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER:-evolution_user} -d ${PG_DB:-whatsmiau}"]
       interval: 5s
       timeout: 5s
       retries: 5
