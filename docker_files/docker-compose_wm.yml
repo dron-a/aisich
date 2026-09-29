@@ -1,0 +1,11 @@
+  whatsmiau:
+    image: impedr029/whatsmiau:develop   # pin a release tag after checking github tags
+    ports:
+      - "8085:8080"
+    environment:
+      - PORT=8080
+      - API_KEY=miaulocal123
+      - REDIS_URL=redis:6379
+      - DIALECT_DB=postgres
+      - DB_URL=postgresql://evolution_user:evolution_dev_pw@postgres:5432/whatsmiau
+    depends_on: [postgres, redis]

@@ -8,3 +8,10 @@ CREATE TABLE users (
 
 -- Needed only by the optional Cloudflare remove-by-key endpoint (path B).
 CREATE INDEX idx_users_api_key ON users (api_key);
+
+CREATE TABLE trial_usage (
+    phone TEXT NOT NULL,
+    month TEXT NOT NULL,          -- 'YYYY-MM'
+    count INT  NOT NULL DEFAULT 0,
+    PRIMARY KEY (phone, month)
+);

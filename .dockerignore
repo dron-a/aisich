@@ -1,0 +1,34 @@
+# Ignore local environment secrets
+.env
+*.env
+.env.*
+.venv
+chatbot.env
+.venv/
+venv/
+
+# Ignore git data and local build artifacts
+.git
+.git/
+.gitignore
+__pycache__/
+*.pyc
+.pytest_cache
+.ruff_cache
+.mypy_cache
+node_modules/
+.DS_Store
+trial_vectors/
+dev_vectors/
+scripts/
+docker_files/
+tests/
+*.db
+*.sqlite3
+Procfile
+
+dev_suite
+chunk_store
+models
+*.npz
+*.faiss

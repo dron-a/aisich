@@ -50,20 +50,6 @@ services:
     image: redis:7.4
     volumes:
       - redis_data:/data
-  
-  whatsmiau:
-    # image: impedr029/whatsmiau:v1.2.0
-    # platform: linux/amd64   # pin a release tag after checking github tags
-    build: ../whatsmiau-src
-    ports:
-      - "8085:8080"
-    environment:
-      - PORT=8080
-      - API_KEY=miaulocal123
-      - REDIS_URL=redis://redis:6379
-      - DIALECT_DB=postgres
-      - DATABASE_URL=postgresql://evolution_user:evolution_dev_pw@postgres:5432/whatsmiau?sslmode=disable
-    depends_on: [postgres, redis]
 
 volumes:
   evolution_instances:

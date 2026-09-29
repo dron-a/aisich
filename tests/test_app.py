@@ -26,9 +26,11 @@ def test_state(monkeypatch):
     main.dm_gate._last.clear()
     main._MENTION_RE = None
     monkeypatch.setattr(main.settings, "dm_conversation_enabled", True)
-    monkeypatch.setattr(main.settings, "allowed_group_jid", "12036304@g.us")
+    monkeypatch.setattr(main.settings, "allowed_group_jids", ["12036304@g.us"])
     monkeypatch.setattr(main.settings, "bot_number", "919999999999")
     monkeypatch.setattr(main.settings, "bot_lid", "145136239509573")
+    monkeypatch.setattr(main.settings, "trial_enabled", False)
+    monkeypatch.setattr(main.settings, "llm_stub", False)
     yield
 
 # @pytest.fixture(autouse=True)

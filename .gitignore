@@ -3,3 +3,5 @@
 dev_vectors
 __pycache__
 .pytest_cache
+reference
+trial_vectors
