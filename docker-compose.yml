@@ -43,7 +43,7 @@ services:
       - API_KEY=${WHATSMIAU_API_KEY:-dev_key}
       - REDIS_URL=redis://redis:6379
       - DIALECT_DB=postgres
-      - DATABASE_URL=postgresql://${PG_USER:-postgres}:${PG_PASSWORD:-secretpassword}@postgres:5432/${PG_DB:-whatsmiau}?sslmode=disable
+      - DATABASE_URL=postgresql://${PG_USER:-evolution_user}:${PG_PASSWORD1:-evolution_dev_pw}@postgres:5432/${PG_DB:-whatsmiau}?sslmode=disable
     depends_on:
       postgres:
         condition: service_healthy
