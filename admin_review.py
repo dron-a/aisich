@@ -79,7 +79,7 @@ def _apply_approve(pending: list, approved: list, numbers: list[int]) -> dict:
     seen = set(approved)
     approved.extend(t for t in taken if t not in seen)
 
-    _put_json(settings.s3_chunks_key, approved)     # chunks first
+    _put_json(settings.s3_approved_key, approved)     # chunks first
     _put_json(settings.s3_pending_key, left)        # then shrink pending
     return {"approved": len(taken), "remaining": len(left), "total": len(approved)}
 
@@ -100,7 +100,7 @@ async def list_pending(offset: int = 0) -> dict:
 async def approve(numbers: list[int]) -> dict:
     pending, approved = await asyncio.gather(
         asyncio.to_thread(_get_json, settings.s3_pending_key, []),
-        asyncio.to_thread(_get_json, settings.s3_chunks_key, []),
+        asyncio.to_thread(_get_json, settings.s3_approved_key, []),
     )
     return await asyncio.to_thread(_apply_approve, pending, approved, numbers)
 
