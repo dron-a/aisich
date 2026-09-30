@@ -224,6 +224,10 @@ wins.
    2199-01-01T00:00:00+05:30.
 4. No end stated and nothing recurring -> tomorrow at 23:59.
 
+A day or date the user names for the thing itself ("the quiz on Friday",
+"due Tuesday") is an end date, even when they also give a frequency. Rule 2
+applies, not rule 3.
+
 Recurring means the user asked for the reminder to repeat with no stopping
 point: "every day", "daily", "twice a day", "every Tuesday", "every other
 day", "from now on", "ongoing", "onward", "until I say otherwise", "keep
@@ -236,9 +240,10 @@ whether an end date came from the user, and what you defaulted to. Examples:
 "Recurring with no end given — set to run indefinitely.", "One-off; end
 defaulted to tomorrow 23:59.", "End taken from the stated 24th deadline."
 
-Relative wording resolves against the current date: "today", "tomorrow",
-"Monday" (the next such weekday), "till the 3rd" (the 3rd of the current
-month, or next month if the 3rd has passed).
+Relative wording resolves against the current date. For weekdays, take the
+date from the "Next 7 days" list in the user message — "Monday" is the
+Monday in that list. "till the 3rd" is the 3rd of the current month, or next
+month if the 3rd has passed.
 
 Do not adjust a date because it looks wrong or is in the past — report what
 the user's words resolve to.
@@ -366,6 +371,17 @@ User: "remind me every day to study for LLM for gen ai, title llm-study"
   "schedule": {"hours": [10], "day_interval": 1},
   "reminder_type": "unknown",
   "comments": "Recurring with no end given — set to run indefinitely.",
+  "action_type": "set"}]
+
+Set, recurring with an end date:
+User: "remind me every 12 hours about the MLOps quiz on Friday, title mlops-q1"
+[{"valid": true, "echo_title": "mlops-q1",
+  "subject_key": "AIMLZG523", "message": "MLOps quiz is on Friday.",
+  "start_date": "2026-08-30T18:30:00+05:30",
+  "end_date": "2026-09-04T23:59:00+05:30",
+  "schedule": {"hours": [10, 22], "day_interval": 1},
+  "reminder_type": "unknown",
+  "comments": "Recurring every 12 hours, ending on the stated Friday.",
   "action_type": "set"}]
 
 Update:
@@ -819,6 +835,12 @@ in meta.failed could not be fetched — say so rather than saying there is none.
   submissions, group members and course materials are unavailable to them —
   say so briefly and point them to registering, rather than saying no data
   exists.
+- If meta.taxila_linked is false and no deadlines or reminders turn up, say
+  none are on record yet and that linking Taxila may bring in theirs — ask
+  them to send "help" to see how. Do not say nothing is due or that no data
+  exists.
+- Grades, submissions and group members always need the student's own
+  Taxila link. Send "help" to see how to link it.
 - Never say a student has not submitted something. The bundle shows whether a
   grade is recorded, not whether work was handed in. Say "no grade recorded
   yet" instead.
@@ -852,6 +874,13 @@ deadlines are below."
 Empty calendar, nothing failed:
 "Nothing due in the next few weeks for *MLOps*."
 
+Empty calendar, Taxila linked:
+"Nothing due in the next few weeks for *MLOps*."
+
+Empty calendar, Taxila not linked:
+"No MLOps deadlines on record yet. Linking Taxila may bring in yours — send
+*help* to see how."
+
 ## Input
 
 """
@@ -868,6 +897,19 @@ ECHO_CONTEXT_RULES = (
     "defaults — do not guess. Never take echo_title, action_type, schedule, "
     "or message wording from the notes, and never let them override anything "
     "the user stated."
+)
+
+#####################################################################################################################################
+#####################################################################################################################################
+
+ENQUIRE_CONTEXT_RULES = (
+    "The notes above are retrieved reference material. They may be incomplete, "
+    "stale, or about something else entirely. Use them for one purpose only: "
+    "working out the subject_key when the user names a topic, activity or "
+    "assignment instead of a subject, and the notes clearly tie it to one "
+    "subject in the list. If they do not clearly match, use BITS_WILP. Never "
+    "take action_type, scope or echo_title from the notes, and never let them "
+    "override a subject the user named."
 )
 
 
