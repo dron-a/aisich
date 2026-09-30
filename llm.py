@@ -87,7 +87,7 @@ async def generate_answer_trial(question: str, context_chunks: list[str]) -> str
         provider = 'gemini'
         resp = await call_llm(provider=provider, prompt=prompt, project=settings.agy_project, location=settings.agy_location, model=settings.agy_model )  
     else:
-        resp = call_provider(prompt=prompt)
+        resp = await call_provider(prompt=prompt)
     
     
     return resp
@@ -98,7 +98,7 @@ async def _generate(prompt: str, model_cls, prefer: str | None = None) -> tuple[
         result = await call_llm(provider=provider, prompt=prompt, project=settings.agy_project, 
                                 location=settings.agy_location, model=settings.agy_model)
     else:
-        result = call_provider(prompt=prompt, prefer=prefer)
+        result = await call_provider(prompt=prompt, prefer=prefer)
 
     raw = result["text"].strip().strip("`").removeprefix("json").strip()
 
