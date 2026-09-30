@@ -24,9 +24,9 @@ services:
     command: >
       redis-server 
       --maxmemory 128mb 
-      --maxmemory-policy allkeys-lru 
-      --save "" 
-      --appendonly no
+      --maxmemory-policy volatile-lru
+    volumes:
+      - redis_data:/data
     deploy:
       resources:
         limits:
@@ -77,3 +77,4 @@ services:
 
 volumes:
   pg_data:
+  redis_data:
