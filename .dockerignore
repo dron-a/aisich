@@ -4,6 +4,7 @@
 .env.*
 .venv
 chatbot.env
+aisich.env
 .venv/
 venv/
 
