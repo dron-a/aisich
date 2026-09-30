@@ -50,4 +50,4 @@ curl -s "http://localhost:8085/v1/instance/connectionState/miautest" -H "apikey:
 # create qr
 curl -s "http://localhost:8085/v1/instance/connect/miautest/image" -H "apikey: miaulocal123" -o qr.png && open qr.png
 # or
-ssh ubuntu@<your url> "curl -s http://127.0.0.1:8080/instance/qrcode_png" > qr.png && open qr.png
+ssh ubuntu@<your url> 'curl -s "http://localhost:8085/v1/instance/connect/miautest/image" -H "apikey: miaulocal123"' > qr.png && open qr.png
