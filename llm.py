@@ -1,5 +1,5 @@
 import litellm
-from datetime import datetime
+from datetime import datetime, timedelta
 from dataclasses import dataclass
 from zoneinfo import ZoneInfo
 from app_context import BOT_CONTEXT, SYS_PROMPT_V1, ECHO_PROMPT, ENQUIRE_PROMPT, ENQUIRE_INTENT_PROMPT, SUBJECT_CONTEXT, ECHO_CONTEXT_RULES, EXAM_SCHEDULE
@@ -87,7 +87,7 @@ async def generate_answer_trial(question: str, context_chunks: list[str]) -> str
         provider = 'gemini'
         resp = await call_llm(provider=provider, prompt=prompt, project=settings.agy_project, location=settings.agy_location, model=settings.agy_model )  
     else:
-        resp = call_provider(prompt=prompt)
+        resp = await call_provider(prompt=prompt)
     
     
     return resp
@@ -98,9 +98,9 @@ async def _generate(prompt: str, model_cls, prefer: str | None = None) -> tuple[
         result = await call_llm(provider=provider, prompt=prompt, project=settings.agy_project, 
                                 location=settings.agy_location, model=settings.agy_model)
     else:
-        result = call_provider(prompt=prompt, prefer=prefer)
+        result = await call_provider(prompt=prompt, prefer=prefer, json_mode=True)
 
-    raw = result["text"].strip().strip("`").removeprefix("json").strip()
+    raw = result.strip().strip("`").removeprefix("json").strip()
 
     data = json.loads(raw)
     if isinstance(data, dict):
@@ -118,7 +118,9 @@ async def _generate(prompt: str, model_cls, prefer: str | None = None) -> tuple[
 async def generate_echo(user_text: str, context_chunks: list[str]) -> tuple[list[EchoItem], int]:
     """Returns (validated items, count dropped as malformed).
     Raises on a response that isn't parseable JSON at all."""
-    today = datetime.now(IST).strftime("%A, %Y-%m-%dT%H:%M:%S%z")
+    now = datetime.now(IST)
+    today = now.strftime("%A, %Y-%m-%dT%H:%M:%S%z")
+    days = ", ".join((now + timedelta(days=i)).strftime("%a %d %b") for i in range(1, 8))
     sys_prompt = (ECHO_PROMPT.replace("{SUBJECT_CONTEXT}", SUBJECT_CONTEXT))
 
     context_block = ""
@@ -128,8 +130,9 @@ async def generate_echo(user_text: str, context_chunks: list[str]) -> tuple[list
 
     # Include it in your prompt structure
     content = (
-        f"Current date and time: {today}   (IST, +05:30)\n\n" +
-        context_block + 
+        f"Current date and time: {today}   (IST, +05:30)\n"
+        f"Next 7 days: {days}\n\n" +
+        context_block +
         f"User: {user_text}"
     )
     prompt = Prompt(system_prompt=sys_prompt, user_prompt=content)
@@ -168,7 +171,7 @@ async def reply_enquire(usr_context: dict, user_text: str, context_chunks: list[
     content = (
         f"Current date and time: {today}   (IST, +05:30)\n\n" +
         context_block +
-        f"Student message:\n{user_text}\n\nBundle:\n{json.dumps(usr_context, default=str)}"
+        f"Student message:\n{user_text}\n\nBundle:\n{json.dumps(usr_context, default=str, separators=(",", ":"), ensure_ascii=False)}"
     )
     prompt = Prompt(system_prompt=sys_prompt, user_prompt=content)
     return await call_provider(prompt, prefer=settings.ldr_provider)
