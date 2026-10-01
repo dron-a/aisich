@@ -174,7 +174,7 @@ async def set_notice(item, phone: str, target_group: str) -> str:
                                  start_date, end_date, schedule, notice_kind,
                                  created_by, last_updated_by)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $9)
-        ON CONFLICT (target_group, echo_title) DO UPDATE SET
+        ON CONFLICT (target_group, echo_title, created_by) DO UPDATE SET
             subject_key     = EXCLUDED.subject_key,
             message         = EXCLUDED.message,
             start_date      = EXCLUDED.start_date,
@@ -458,7 +458,7 @@ async def find_notices(target_group: str, phone: str, is_admin: bool,
     if not is_admin:
         args.append(phone)
         where += f" AND created_by = ${len(args)}"
-    elif subject_key:
+    if subject_key:
         args.append(subject_key)
         where += f" AND subject_key = ${len(args)}"
 

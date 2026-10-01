@@ -106,7 +106,7 @@ _alloc = _Allocator(settings.llm_weights)
 _BY_NAME = {p.name: p for p in PROVIDERS}
 
 
-async def _try(p, prompt: Prompt, timeout_s: float,
+async def _try(p, prompt: Prompt,  json_mode: bool, timeout_s: float,
                max_tokens: int, temperature: float) -> tuple[str | None, str]:
     """One attempt. Returns (text, "") on success, (None, reason) on failure."""
     body = {
@@ -118,7 +118,8 @@ async def _try(p, prompt: Prompt, timeout_s: float,
             {"role": "user", "content": prompt.user_prompt},
         ],
     }
-    if p.json_mode:
+
+    if json_mode and p.json_mode:
         body["response_format"] = {"type": "json_object"}
 
     try:
@@ -142,9 +143,12 @@ async def _try(p, prompt: Prompt, timeout_s: float,
 
     logger.info("provider %s answered", p.name)
     return r.json()["choices"][0]["message"]["content"] or "", ""
+    # text = r.json()["choices"][0]["message"]["content"] or ""
+    # open("./dev_vectors/llm_raw.log", "a").write(f"{p.name}\t{text}\n")
+    # return text, ""
 
 
-async def call_provider(prompt: Prompt, *, prefer: str | None = None,
+async def call_provider(prompt: Prompt, *, prefer: str | None = None, json_mode: bool = False,
                         timeout_s: float = 90.0, max_tokens: int = 2000,
                         temperature: float = 0, **_) -> str:
     """Try `prefer` first if it is configured, then the rest in allocation
@@ -161,7 +165,7 @@ async def call_provider(prompt: Prompt, *, prefer: str | None = None,
     if prefer in available:
         available.discard(prefer)
         _alloc.record(prefer)
-        text, last = await _try(_BY_NAME[prefer], prompt, timeout_s,
+        text, last = await _try(_BY_NAME[prefer], prompt, json_mode, timeout_s,
                                 max_tokens, temperature)
         if text is not None:
             return text
@@ -171,7 +175,7 @@ async def call_provider(prompt: Prompt, *, prefer: str | None = None,
         if name is None:
             break
         available.discard(name)
-        text, last = await _try(_BY_NAME[name], prompt, timeout_s,
+        text, last = await _try(_BY_NAME[name], prompt, json_mode, timeout_s,
                                 max_tokens, temperature)
         if text is not None:
             return text
