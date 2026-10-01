@@ -255,16 +255,18 @@ async def process_message(remote_jid: str, sender_phone: str, text: str, quoted:
 
         # ---- DM path ----
         if registration_commands.is_command(text):          # commands never cooled down
+            merged = merge_quote(text, quoted)
             reply = await registration_commands.handle_command(sender_phone, merged, is_group=False)
             await evolution.send_message(remote_jid, reply)
             return
-        if sender_phone in settings.admin_phones: await _answer_trial(remote_jid, merged); return
+        if sender_phone in settings.admin_phones: await _answer_trial(remote_jid, merge_quote(text, quoted)); return
         if settings.dm_conversation_enabled:
             cfg = await db.get_user_llm_config(sender_phone)
             if cfg is None:
                 if unreg_gate.allow(f"dm:{sender_phone}"):
                     await evolution.send_message(remote_jid, NOT_REGISTERED_MSG)
                 return
+            merged = merge_quote(text, quoted)
             await _answer(remote_jid, merged, cfg)
             return
         if dm_gate.allow(sender_phone):
