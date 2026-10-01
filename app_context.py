@@ -88,11 +88,11 @@ SEMESTER 4: Dissertation only, no electives. Minimum overall CGPA of 5.5 require
 ##########################################################################################################################################################################################################################
 ##########################################################################################################################################################################################################################
 
-BOT_SELF = """[AISICH — About This Bot]
+BOT_SELF = f"""[AISICH — About This Bot]
 
 NAME: AISICH — "All I See Is Chats". A WhatsApp assistant for BITS WILP
 M.Tech AI & ML students, built by a student. Not an official BITS service.
-SOURCE CODE: <REPO_LINK>
+SOURCE CODE: {settings.github_url}
 
 HOW IT ANSWERS: Questions are matched against a knowledge base built from the
 student community chat and this program reference, then answered by an AI
