@@ -82,6 +82,7 @@ class Settings(BaseSettings):
     grades_n_result_url: str = ""
     bits_contact_mail: str = ""
     bits_contact_number: list[str] = []
+    github_url: str = "github.com/aisich/aisich"
 
 
 
