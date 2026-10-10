@@ -195,7 +195,7 @@ async def remove_notice(echo_title: str, phone: str, target_group: str) -> bool:
     assert _pool is not None, "DB pool not initialized"
     row = await _pool.fetchrow(
         "DELETE FROM src_notice WHERE target_group = $1 AND echo_title = $2 and created_by = $3"
-        "RETURNING echo_title",
+        " RETURNING echo_title",
         target_group, echo_title, phone
     )
     return row is not None
