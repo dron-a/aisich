@@ -90,7 +90,7 @@ async def handle_command(phone: str, text: str, is_group: bool) -> str:
         return  (cmd, body)
 
 async def _resolve(item, phone, target_group) -> tuple[list[str], str | None]:
-    if item.echo_title and not item.subject_key and db.notice_exists(item.echo_title, phone, target_group):
+    if item.echo_title and not item.subject_key and await db.notice_exists(item.echo_title, phone, target_group):
         return [item.echo_title], None
 
     is_admin = phone in settings.admin_phones
