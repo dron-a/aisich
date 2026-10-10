@@ -126,22 +126,25 @@ async def apply_echo(items: list[EchoItem], phone: str, raw_text: str, remote_ji
                 lines.append(f"✓ {title} {what}. {item.comments}")
 
             elif item.action_type == "remove":
-                title, err = await _resolve(item, phone, remote_jid)
+                titles, err = await _resolve(item, phone, remote_jid)
                 if err:
                     lines.append(err)
-                elif await db.remove_notice(title, phone, remote_jid):
-                    lines.append(f"✓ {title} removed.")
                 else:
-                    lines.append(f"✗ No reminder named {title}.")
+                    title = titles[0]          # remove only ever resolves to one
+                    if await db.remove_notice(title, phone, remote_jid):
+                        lines.append(f"✓ {title} removed.")
+                    else:
+                        lines.append(f"✗ No reminder named {title}.")
 
             elif item.action_type == "update":
-                title, err = await _resolve(item, phone, remote_jid)
+                titles, err = await _resolve(item, phone, remote_jid)
                 if err:
                     lines.append(err)
                 else:
-                    item = item.model_copy(update={"echo_title": title})
-                    await db.stage_update(item, raw_text, phone, remote_jid)
-                    lines.append(f"✓ Update queued for {title}. {item.comments}")
+                    for title in titles:       # several when "update all my reminders"
+                        staged = item.model_copy(update={"echo_title": title})
+                        await db.stage_update(staged, raw_text, phone, remote_jid)
+                    lines.append(f"✓ Update queued for {', '.join(titles)}. {item.comments}")
 
             else:
                 lines.append(f"✗ {title or 'request'}: unclear what to do.")
